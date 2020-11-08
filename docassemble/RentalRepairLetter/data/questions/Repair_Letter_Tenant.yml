@@ -1,0 +1,183 @@
+include:
+  - docassemble.MAVirtualCourt:basic-questions.yml
+---
+comment: |
+  The metadata section controls the tab title and saved interview title. You can delete this section if you include this YAML file in another YAML file.
+metadata:
+  title: |
+    Rental Repair Demand Letter
+  short title: |
+    Repair Demand Letter
+---
+comment: |
+  This section is used by MAVirtualCourts to control how some of the questions work.
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['Repair_Letter_Tenant']"):
+    interview_metadata.initializeObject('Repair_Letter_Tenant')
+  interview_metadata['Repair_Letter_Tenant'].update({
+    'title': 'Rental Repair Demand Letter',
+    'short title': 'Repair Demand Letter',
+    'description': 'This letter is created for tenants to be notify landlords of issue(s) they are experiencing on or within the rental property.',
+    'original_form': 'https://www.masslegalhelp.org/housing/lt1-form-9-repair-letter.pdf',
+    'allowed courts': [
+      'Boston Municipal Court',
+      'District Court',
+      'Housing Court',
+      'Superior Court',
+    ],
+    'categories': [
+      'Housing',
+    ],
+    'logic block variable': 'Repair_Letter_Tenant',
+    'attachment block variable': 'Repair_Letter_Tenant_attachment',
+    'typical role': 'unknown',
+  })
+---
+features:
+  navigation: True
+---
+sections:
+  - review_Repair_Letter_Tenant: Review your answers
+---
+id: interview_order_Repair_Letter_Tenant
+code: |
+  # This is a placeholder to control logic flow in this interview
+
+  basic_questions_intro_screen 
+  Repair_Letter_Tenant_intro
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["Repair_Letter_Tenant"]["allowed courts"]
+  nav.set_section('review_Repair_Letter_Tenant')
+  # Below sets the user_role by asking a question.
+  # You can set user_role directly instead to either 'plaintiff' or 'defendant'
+  user_ask_role
+  Issues_date
+  issue_description
+  # Set the answer file name.
+  set_parts(subtitle=str(users))
+  set_progress(12.5)
+  users[0].phone_number
+  users[0].email
+  set_progress(25.0)
+  other_parties[0]
+  users[0]
+  str(other_parties)
+  set_progress(37.5)
+  other_parties[0].address.address
+  users[0].address.address
+  # Save (anonymized) interview statistics.
+  store_variables_snapshot(data={'zip': users[0].address.zip})
+  Repair_Letter_Tenant_preview_question # Pre-canned preview screen
+  basic_questions_signature_flow
+  users[0].signature
+  Repair_Letter_Tenant = True
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Rental Repair Demand Letter
+continue button field: Repair_Letter_Tenant_intro
+question: |
+  Rental Repair Demand Letter
+subquestion: |
+  This letter is created for tenants to be notify landlords of issue(s) they are experiencing on or within the rental property.
+---
+id: Review your form before you sign it
+continue button field: Repair_Letter_Tenant_preview_question
+question: |
+  Review your form before you sign it
+subquestion: |
+  Here is a preview of the form you'll sign on the next page. 
+  
+   ${ pdf_concatenate(Repair_Letter_Tenant_attachment['preview'], filename='Repair_Letter_Tenant.pdf')}
+---
+id: Issue(s) date
+continue button field: Issues_date
+question: |
+  Issue(s) date:
+subquestion: |
+  On approximately what day did you begin to experience issue(s) regarding your rental property?
+fields:
+  - 'Date issue(s) arose:': issue_date
+    datatype: date
+---
+id: Issue(s) Description
+question: |
+  Issue(s) Description:
+subquestion: |
+  Describe in detail the issue(s) regarding the property you are currently renting.
+fields:
+  - 'Issue(s) that need to be repaired:': issue_description
+    input type: area
+---
+progress: 100
+mandatory: True
+id: Your form is ready to download and file
+question: |
+  Your form is ready to download and file
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  Below is a preview of your form.
+  
+  ${pdf_concatenate(Repair_Letter_Tenant_attachment['final'], filename='Repair_Letter_Tenant.pdf') }
+need: Repair_Letter_Tenant
+attachment code: Repair_Letter_Tenant_attachment['final']
+---
+objects:
+  - Repair_Letter_Tenant_attachment: DADict
+---
+attachment:
+    variable name: Repair_Letter_Tenant_attachment[i]
+    name: Repair Demand Letter
+    filename: Repair_Demand_Letter
+    docx template file: Form_9_-_Repair_Letter_Fields.docx
+---
+id: Repair_Letter_Tenant review screen
+event: review_Repair_Letter_Tenant
+question: |
+  Placeholder Review Screen
+subquestion: |
+  Edit your answers below
+review: 
+  - Edit: issue_description
+    button: |
+      Issue(s) that need to be repaired::
+      > ${ single_paragraph(issue_description) }
+  - Edit: issue_date
+    button: |
+      Date issue(s) arose::
+      ${ issue_date.format() }
+  - Edit: users[0].phone_number
+    button: |
+      users[0].phone_number:
+      ${ users[0].phone_number }
+  - Edit: users[0].signature
+    button: |
+      users[0].signature:
+      ${ users[0].signature }
+  - Edit: users[0].email
+    button: |
+      users[0].email:
+      ${ users[0].email }
+  - Edit: other_parties[0].name.first
+    button: |
+      other_parties[0]:
+      ${ other_parties[0] }
+  - Edit: users[0].name.first
+    button: |
+      users[0]:
+      ${ users[0] }
+  - Edit: other_parties[0].name.first
+    button: |
+      other_parties:
+      ${ other_parties }
+  - Edit: other_parties[0].address.address
+    button: |
+      other_parties[0].address.address:
+      ${ other_parties[0].address.address }
+  - Edit: users[0].address.address
+    button: |
+      users[0].address.address:
+      ${ users[0].address.address }
