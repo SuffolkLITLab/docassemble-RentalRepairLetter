@@ -9,6 +9,9 @@ metadata:
   short title: |
     Repair Letter
 ---
+code: |
+  interview_short_title = "Ask your landlord to fix bad housing conditions"
+---
 comment: |
   This section is used by MAVirtualCourts to control how some of the questions work.
 mandatory: True
