@@ -17,13 +17,13 @@ comment: |
 mandatory: True
 code: |
   interview_metadata # make sure we initialize the object
-  if not defined("interview_metadata['Repair_Letter_Tenant']"):
-    interview_metadata.initializeObject('Repair_Letter_Tenant')
-  interview_metadata['Repair_Letter_Tenant'].update({
-    'title': 'Tenant Repair Letter',
-    'short title': 'Repair Letter',
-    'description': 'This letter is created for tenants to act as a notification device for their landlords. The letter notifies the landlord of issue(s) the tenant is experiencing on or within areas of their rental property.',
-    'original_form': 'https://www.masslegalhelp.org/housing/lt1-form-9-repair-letter.pdf',
+  if not defined("interview_metadata['tenant_repair_request']"):
+    interview_metadata.initializeObject('tenant_repair_request')
+  interview_metadata['tenant_repair_request'].update({
+    'title': 'Tenant Repair Request Letter',
+    'short title': 'Tenant Repair Request Letter',
+    'description': 'Tenant Repair Request Letter',
+    'original_form': '',
     'allowed courts': [
       'Boston Municipal Court',
       'District Court',
@@ -33,124 +33,243 @@ code: |
     'categories': [
       'Housing',
     ],
-    'logic block variable': 'Repair_Letter_Tenant',
-    'attachment block variable': 'Repair_Letter_Tenant_attachment',
-    'typical role': 'unknown',
+    'logic block variable': 'tenant_repair_request',
+    'attachment block variable': 'tenant_repair_request',
+    'typical role': 'plaintiff',
   })
 ---
 features:
   navigation: True
 ---
 sections:
-  - review_Repair_Letter_Tenant: Review your answers
+  - review_tenant_repair_request: Review your answers
 ---
-id: interview_order_Repair_Letter_Tenant
+id: interview_order_tenant_repair_request
 code: |
   # This is a placeholder to control logic flow in this interview
-
-  basic_questions_intro_screen 
-  Repair_Letter_Tenant_intro
+  custom_intro
+  tenant_repair_request_intro
+  Letter_Information
   # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["Repair_Letter_Tenant"]["allowed courts"]
-  nav.set_section('review_Repair_Letter_Tenant')
-  # Below sets the user_role by asking a question.
-  # You can set user_role directly instead to either 'plaintiff' or 'defendant'
-  user_ask_role
-  Date_Issues_arose
-  issue_description
   # Set the answer file name.
+  user_role = 'plaintiff'
   set_parts(subtitle=str(users))
   set_progress(12.5)
   users[0]
-  users[0].email
+  users[0].address
+  users[0].phone_number
   set_progress(25.0)
-  users[0].address.address
-  other_parties[0]
-  str(other_parties)
+  land_lord[0]
+  land_lord[0].address
   set_progress(37.5)
-  other_parties[0].address.address
   # Save (anonymized) interview statistics.
   store_variables_snapshot(data={'zip': users[0].address.zip})
-  Repair_Letter_Tenant_preview_question # Pre-canned preview screen
+  #tenant_repair_letter_preview_screen
   basic_questions_signature_flow
   users[0].signature
-  Repair_Letter_Tenant = True
+  tenant_repair_request = True
+  basic_questions_intro_screen = False
+  other_parties.there_is_another = False
 ---
-comment: |
-  This question is used to introduce your interview. Please customize
+id: custom intro screen
+mandatory: True
+decoration: form-lineal
+question: |
+  Send a Repair Demand Letter to Your Landlord: Mass Access Project
+subquestion: |
+  
+  The MassAccess Project can help Massachusetts tenants write and send letters in 3 steps:
+  
+  Step 1. Answer the questions that will fill out your letter.  
+  Step 2. Review and sign the form.  
+  Step 3. Step 3. Download or email the final form. You will need to deliver it on your own.
+ 
+  
+    *This site is not a lawyer. If you would like a lawyer, find [your local
+  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).*
+  
+  Tap the {green words} in any screen for a definition or more information.
+  
+
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+
+fields:
+  - To continue, you must accept the [terms of use](https://massaccess.suffolklitlab.org/privacy/): acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+continue button field: custom_intro
+terms:
+  green words: |
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
+right: |
+  % if user_has_saved_answers:
+  ${fa_icon("bell", color="primary", size="sm")}
+  Saved answers available!  
+  
+  ${action_button_html(url_action('load_answer'), icon="folder-open", label=word("View answers"), size="sm" )}
+  % endif    
+  
+  
+  Tap the {green words} in any screen for a definition or more information.
+
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+---
 id: Tenant Repair Letter
-continue button field: Repair_Letter_Tenant_intro
+continue button field: tenant_repair_request_intro
 question: |
   Tenant Repair Letter
 subquestion: |
-  This letter is created for tenants to act as a notification device for their landlords. The letter notifies the landlord of issue(s) the tenant is experiencing on or within areas of their rental property.
----
-id: Review your form before you sign it
-continue button field: Repair_Letter_Tenant_preview_question
-question: |
-  Review your form before you sign it
-subquestion: |
-  Here is a preview of the form you'll sign on the next page. 
+
+  This form will help you draft a notice letter to send to your landlord if they need to repair something in your apartment. If your landlord does not comply with this request, you may send them [Form 10 Repair Demand Letter](https://www.masslegalhelp.org/housing/lt1-form-10-repair-demand.pdf).  
   
-   ${ pdf_concatenate(Repair_Letter_Tenant_attachment['preview'], filename='Repair_Letter_Tenant.pdf')}
+  Before you start, you will need information about your landlord and their address.
+  
+  *The [Cour Forms Online](https://courtformsonline.org/housing/) project may be able to help with other housing issues.* 
+  
+help:
+  label: |
+    More information
+  content: |
+    Learn more at [MassLegalHelp.org](https://www.masslegalhelp.org/housing/forms/evictions-shortcut) 
+mandatory: True
 ---
-id: Date Issue s arose
+id: Letter information
+continue button field: Letter_Information
+question: |
+  Information about mailing
+fields:
+  - How do you plan to mail this letter?: mailing_method
+    datatype: radio
+    choices:
+      - Certified mail: certified_mail
+      - Regular mail only: regular_mail
+  - note: |
+      **Great choice.**
+      Certified mail is a good choice to make sure your landlord gets
+      your letter. Bring this letter to the post office. Before you close
+      the envelope, write the certified mail number on your letter. Keep
+      a copy for your own records, too.
+    show if:
+      variable: mailing_method
+      is: certified_mail
+  - 'When are you sending this letter?': sent_date
+    datatype: date
+    default: ${ today().format("YYYY-MM-dd") }
+---
+#id: Review your form before you sign it
+#continue button field: tenant_repair_letter_preview_screen
+#question: |
+  #Review your form before you sign it
+#subquestion: |
+  #Here is a preview of the form you'll sign on the next page.
+  
+   #${pdf_concatenate(tenant_repair_request_attachment['preview'], filename='tenant_repair_request.pdf')}
+---
+id: Date Issues arose
 continue button field: Date_Issues_arose
 question: |
-  Date Issue(s) arose?
+  When did the issue begin
 subquestion: |
-  On approximately what day did you begin experiencing issue(s) with your rental property?
+  Give the approximate date if you do not know the exact date. 
 fields:
   - 'Date Issue(s) Arose:': issue_date
     datatype: date
 ---
 id: Issues
 question: |
-  Issue(s):
+  Describe your issue
 subquestion: |
-  Describe the issue(s) you have experienced, or are currently experiencing on or within your rental property.
+  Give a specific description of the things(s) you need repaired.
 fields:
   - 'Issues:': issue_description
     input type: area
+---
+id: names of opposing parties
+question: |
+  Landlord information
+subquestion: |
+fields:
+  - Is your Landlord a person, or a business?: other_parties[i].person_type
+    input type: radio
+    choices:
+      - Business or organization: business
+      - Person: individual
+  - First name: other_parties[i].name.first
+    show if:
+      variable: other_parties[i].person_type
+      is: "individual"
+  - Last name: other_parties[i].name.last
+    show if:
+      variable: other_parties[i].person_type      
+      is: "individual"
+  - Suffix: other_parties[i].name.suffix
+    code: |
+      name_suffix()
+    show if:
+      variable: other_parties[i].person_type      
+      is: "individual"
+    required: False      
+  - Name of organization or business: other_parties[i].name.first
+    show if:
+      variable: other_parties[i].person_type
+      is: business
+---
+objects:
+  - users: PeopleList.using(ask_number=True, target_number=1) # You can do the same thing for land_lord
+  - land_lord: PeopleList
 ---
 progress: 100
 mandatory: True
 id: Your form is ready to download and file
 question: |
-  Your form is ready to download and file
+  Your lettter is ready to download
 subquestion: |
   Thank you ${users}. Your form is ready to download and deliver.
   
-  Below is a preview of your form.
+   1. Look over the letter below. Click the "[Review your answers](${ url_action('review_tenant_repair_request')})" button
+  if you need to make any changes.
+  2. Download and print 2 copies of your letter. Keep one for your records.
+  Send the other copy to your housing authority.
+  3. If you choose to send it by certified mail, bring your letter
+  unsealed to the post office. Write the certified mail number on the letter
+  before you place it in the mail.
   
-  ${pdf_concatenate(Repair_Letter_Tenant_attachment['final'], filename='Repair_Letter_Tenant.pdf') }
-need: Repair_Letter_Tenant
-attachment code: Repair_Letter_Tenant_attachment['final']
+  ${pdf_concatenate(tenant_repair_request_attachment['final'], filename='tenant_repair_request.pdf') }
+need: tenant_repair_request
+attachment code: tenant_repair_request_attachment['final']
 ---
 objects:
-  - Repair_Letter_Tenant_attachment: DADict
+  - tenant_repair_request_attachment: DADict
 ---
 attachment:
-    variable name: Repair_Letter_Tenant_attachment[i]
-    name: Repair Letter
-    filename: Repair_Letter
-    docx template file: Form_9_-_Repair_Letter_Fields_copy.docx
+    variable name: tenant_repair_request_attachment[i]
+    name: Letter to request a grievance hearing
+    filename: tenant_repair_request
+    docx template file: tenant_repair_request.docx
 ---
-id: Repair_Letter_Tenant review screen
-event: review_Repair_Letter_Tenant
+id: tenant_repair_request review screen
+event: review_tenant_repair_request
 question: |
   Placeholder Review Screen
 subquestion: |
   Edit your answers below
 review: 
-  - Edit: issue_date
+  - Edit: land_lord[0].address.address
     button: |
-      Date Issue(s) Arose::
-      ${ issue_date.format() }
-  - Edit: issue_description
-    button: |
-      Describe Issue(s) you are experiencing on or within your rental property::
-      > ${ single_paragraph(issue_description) }
+      land_lord[0].address.address:
+      ${ land_lord[0].address.address }
   - Edit: users[0].signature
     button: |
       users[0].signature:
@@ -159,23 +278,110 @@ review:
     button: |
       users[0]:
       ${ users[0] }
-  - Edit: users[0].email
+  - Edit: users[0].number
     button: |
-      users[0].email:
-      ${ users[0].email }
+      users[0].number:
+      ${ users[0].number }
+  - Edit: signature_date
+    button: |
+      signature_date:
+      ${ signature_date }
+  - Edit: land_lord[0].name.first
+    button: |
+      land_lord[0]:
+      ${ land_lord[0] }
+  - Edit: users[0].address
+    button: |
+      users[0].address:
+      ${ users[0].address }
+  - Edit: land_lord[0].address
+    button: |
+      land_lord[0].address:
+      ${ land_lord[0].address }
   - Edit: users[0].address.address
     button: |
       users[0].address.address:
       ${ users[0].address.address }
-  - Edit: other_parties[0].name.first
-    button: |
-      other_parties[0]:
-      ${ other_parties[0] }
-  - Edit: other_parties[0].name.first
-    button: |
-      other_parties:
-      ${ other_parties }
-  - Edit: other_parties[0].address.address
-    button: |
-      other_parties[0].address.address:
-      ${ other_parties[0].address.address }
+---
+id: your name
+question:  |
+  What is your name?
+fields:
+  - First Name: users[0].name.first
+  - Middle Name: users[0].name.middle
+    required: False
+  - Last Name: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False
+---
+id: persons address
+generic object: Individual
+question: |
+  What is your address
+fields:
+  - Street Address: x.address.address
+    address autocomplete: True
+  - Unit: x.address.unit
+    required: False
+  - City: x.address.city
+  - State: x.address.state
+    default: MA   
+    code: |
+      states_list()   
+  - Zip Code: x.address.zip
+    required: False
+---
+id: your contact information
+question: |
+  Contact information
+subquestion: |
+  What is the best way for your landlord to reach you? 
+fields:  
+  - Mobile number: users[0].mobile_number
+    required: False
+  - Other phone number: users[0].phone_number
+    required: False
+  - Email address: users[0].email    
+    datatype: email
+    required: False
+  - Other ways to reach you: users[0].other_contact_method
+    input type: area
+    required: False
+    help: |
+      Be Specific 
+validation code: |
+  if (not showifdef('users[0].phone_number') and \
+      (not showifdef('users[0].mobile_number')) and \
+      (not showifdef('users[0].email')) and \
+      (not showifdef('users[0].other_contact_method'))):
+    validation_error(word("You need to provide at least one contact method."))
+help: |
+  Provide at least one way to reach you
+---
+code: signature_date = today()
+---
+id: signature choice
+decoration: file-signature
+question: |
+  **Sign** your Letter Requesting a Grievance Hearing
+subquestion: |
+  Your letter is almost ready. You need to sign it first.
+  
+  Use the mouse or touchpad on your computer or
+  sign with your finger on your phone. 
+   
+  You can send the letter to someone else to sign if you choose the "phone" option.
+field: signature_choice
+buttons:  
+  - Sign on my phone: phone
+    image: mobile-alt
+  - Sign on this computer: this device
+    image: desktop
+continue button field: saw_signature_choice
+script: |
+  <script>
+    $(".da-field-buttons > div > .btn-da-custom").last().after("<br>")
+    $(".da-field-buttons > div > .btn-da-custom").first().before("<br>")
+  </script>
