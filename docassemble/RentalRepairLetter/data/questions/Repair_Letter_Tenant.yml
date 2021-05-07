@@ -57,19 +57,20 @@ code: |
   set_progress(12.5)
   users[0]
   users[0].address
+  users[0].address.zip
   users[0].phone_number
   set_progress(25.0)
-  land_lord[0]
-  land_lord[0].address
+  other_parties[0].name.first
+  other_parties[0].address.address
+  issue_date
+  issue_description
   set_progress(37.5)
   # Save (anonymized) interview statistics.
   store_variables_snapshot(data={'zip': users[0].address.zip})
-  #tenant_repair_letter_preview_screen
-  basic_questions_signature_flow
+  preview_screen
   users[0].signature
   tenant_repair_request = True
   basic_questions_intro_screen = False
-  other_parties.there_is_another = False
 ---
 id: custom intro screen
 mandatory: True
@@ -168,14 +169,15 @@ fields:
     datatype: date
     default: ${ today().format("YYYY-MM-dd") }
 ---
-#id: Review your form before you sign it
-#continue button field: tenant_repair_letter_preview_screen
-#question: |
-  #Review your form before you sign it
-#subquestion: |
-  #Here is a preview of the form you'll sign on the next page.
+id: Review your form before you sign it
+continue button field: preview_screen
+question: |
+  Review your form before you sign it
+subquestion: |
+
+  Here is a preview of the form you'll sign on the next page.
   
-   #${pdf_concatenate(tenant_repair_request_attachment['preview'], filename='tenant_repair_request.pdf')}
+   ${pdf_concatenate(tenant_repair_request_attachment, filename='tenant_repair_request.pdf')}
 ---
 id: Date Issues arose
 continue button field: Date_Issues_arose
@@ -196,39 +198,25 @@ fields:
   - 'Issues:': issue_description
     input type: area
 ---
-id: names of opposing parties
+id: Land Lord info 1
 question: |
-  Landlord information
-subquestion: |
+  Land Lord Information
 fields:
-  - Is your Landlord a person, or a business?: other_parties[i].person_type
-    input type: radio
-    choices:
-      - Business or organization: business
-      - Person: individual
-  - First name: other_parties[i].name.first
-    show if:
-      variable: other_parties[i].person_type
-      is: "individual"
-  - Last name: other_parties[i].name.last
-    show if:
-      variable: other_parties[i].person_type      
-      is: "individual"
-  - Suffix: other_parties[i].name.suffix
-    code: |
-      name_suffix()
-    show if:
-      variable: other_parties[i].person_type      
-      is: "individual"
-    required: False      
-  - Name of organization or business: other_parties[i].name.first
-    show if:
-      variable: other_parties[i].person_type
-      is: business
+  - Land Lord: other_parties[i].name.first
+  - Land Lord Last Name: other_parties[i].name.last
+    required: False 
+---
+id: Land Lord info
+if: |
+ land_lord_type == 'Person'
+question: |
+  Land Lord Information
+First Name: other_parties[i].name.first
+Last Name: other_parties[i].name.last
 ---
 objects:
   - users: PeopleList.using(ask_number=True, target_number=1) # You can do the same thing for land_lord
-  - land_lord: PeopleList
+  - other_parties: PeopleList.using(ask_number=True, target_number=1)
 ---
 progress: 100
 mandatory: True
@@ -321,16 +309,16 @@ generic object: Individual
 question: |
   What is your address
 fields:
-  - Street Address: x.address.address
+  - Street Address: users[0].address.address
     address autocomplete: True
-  - Unit: x.address.unit
+  - Unit: users[0].address.unit
     required: False
-  - City: x.address.city
-  - State: x.address.state
+  - City: users[0].address.city
+  - State: users[0].address.state
     default: MA   
     code: |
       states_list()   
-  - Zip Code: x.address.zip
+  - Zip Code: users[0].address.zip
     required: False
 ---
 id: your contact information
@@ -365,7 +353,7 @@ code: signature_date = today()
 id: signature choice
 decoration: file-signature
 question: |
-  **Sign** your Letter Requesting a Grievance Hearing
+  Sign your Letter 
 subquestion: |
   Your letter is almost ready. You need to sign it first.
   
