@@ -50,8 +50,8 @@ code: |
   set_progress(25.0)
   other_parties[0].name.first
   other_parties[0].address.address
-  issue_date
-  issue_description
+  tenant_repair_issue_date
+  tenant_repair_issue_description
   set_progress(37.5)
   # Save (anonymized) interview statistics.
   store_variables_snapshot(data={'zip': users[0].address.zip})
@@ -159,7 +159,7 @@ question: |
 subquestion: |
   Give the approximate date if you do not know the exact date. 
 fields:
-  - 'Date Issue(s) Arose:': issue_date
+  - 'Date Issue(s) Arose:': tenant_repair_issue_date
     datatype: date
 ---
 id: Issues
@@ -168,7 +168,7 @@ question: |
 subquestion: |
   Give a specific description of the things(s) you need repaired.
 fields:
-  - 'Issues:': issue_description
+  - 'Issues:': tenant_repair_issue_description
     input type: area
 ---
 objects:
