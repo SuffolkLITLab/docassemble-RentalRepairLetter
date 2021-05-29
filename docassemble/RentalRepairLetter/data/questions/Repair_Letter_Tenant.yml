@@ -40,7 +40,7 @@ sections:
 id: interview_order_tenant_repair_request
 code: |
   user_role = 'plaintiff'
-  Letter_Information  
+  mailing_method  
   set_parts(subtitle=str(users))
   set_progress(12.5)
   users[0].name.first
@@ -52,6 +52,7 @@ code: |
   other_parties[0].address.address
   tenant_repair_issue_date
   tenant_repair_issue_description
+  tenant_repair_introduction
   set_progress(37.5)
   # Save (anonymized) interview statistics.
   store_variables_snapshot(data={'zip': users[0].address.zip})
@@ -130,7 +131,6 @@ help:
     Learn more at [MassLegalHelp.org](https://www.masslegalhelp.org/housing/forms/evictions-shortcut) 
 ---
 id: Letter information
-continue button field: Letter_Information
 question: |
   Information about mailing
 fields:
@@ -153,7 +153,6 @@ fields:
     default: ${ today().format("YYYY-MM-dd") }
 ---
 id: Date Issues arose
-continue button field: Date_Issues_arose
 question: |
   When did the issue begin
 subquestion: |
@@ -170,6 +169,20 @@ subquestion: |
 fields:
   - 'Issues:': tenant_repair_issue_description
     input type: area
+---
+id: tenant_repair_introduction
+question: |
+  Introduce your letter
+subquestion: |
+  Add a few words to introduce your letter to ${ other_parties.familiar() }.
+  
+  For example, you may remind your landlord how long you have been a tenant.
+  
+  If you are not sure what to say, it is okay to leave this blank.
+fields:
+  - no label: tenant_repair_introduction
+    datatype: area
+    
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True, target_number=1)
@@ -230,6 +243,15 @@ review:
     button: |
       users[0].address.address:
       ${ users[0].address.address }
+  - Edit: tenant_repair_introduction
+    button: |
+      > ${ tenant_repair_introduction } 
+  - Edit: tenant_repair_issue_date
+    button: |
+      ${ tenant_repair_issue_date }
+  - Edit: tenant_repair_issue_description
+    button: |
+      > ${ tenant_repair_issue_description }
 ---
 id: your name
 question:  |
