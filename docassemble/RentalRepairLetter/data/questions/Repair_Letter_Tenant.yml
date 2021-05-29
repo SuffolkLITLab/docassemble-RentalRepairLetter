@@ -1,13 +1,6 @@
 include:
-  - docassemble.MAVirtualCourt:basic-questions.yml
----
-comment: |
-  The metadata section controls the tab title and saved interview title. You can delete this section if you include this YAML file in another YAML file.
-metadata:
-  title: |
-    Tenant Repair Letter
-  short title: |
-    Repair Letter
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
 ---
 code: |
   interview_short_title = "Ask your landlord to fix bad housing conditions"
@@ -46,16 +39,11 @@ sections:
 ---
 id: interview_order_tenant_repair_request
 code: |
-  # This is a placeholder to control logic flow in this interview
-  custom_intro
-  tenant_repair_request_intro
-  Letter_Information
-  # Set the allowed courts for this interview
-  # Set the answer file name.
   user_role = 'plaintiff'
+  Letter_Information  
   set_parts(subtitle=str(users))
   set_progress(12.5)
-  users[0]
+  users[0].name.first
   users[0].address
   users[0].address.zip
   users[0].phone_number
@@ -67,13 +55,9 @@ code: |
   set_progress(37.5)
   # Save (anonymized) interview statistics.
   store_variables_snapshot(data={'zip': users[0].address.zip})
-  preview_screen
-  users[0].signature
-  tenant_repair_request = True
-  basic_questions_intro_screen = False
+  interview_order_tenant_repair_request = True
 ---
 id: custom intro screen
-mandatory: True
 decoration: form-lineal
 question: |
   Send a Repair Demand Letter to Your Landlord: Mass Access Project
@@ -144,7 +128,6 @@ help:
     More information
   content: |
     Learn more at [MassLegalHelp.org](https://www.masslegalhelp.org/housing/forms/evictions-shortcut) 
-mandatory: True
 ---
 id: Letter information
 continue button field: Letter_Information
@@ -169,16 +152,6 @@ fields:
     datatype: date
     default: ${ today().format("YYYY-MM-dd") }
 ---
-id: Review your form before you sign it
-continue button field: preview_screen
-question: |
-  Review your form before you sign it
-subquestion: |
-
-  Here is a preview of the form you'll sign on the next page.
-  
-   ${pdf_concatenate(tenant_repair_request_attachment, filename='tenant_repair_request.pdf')}
----
 id: Date Issues arose
 continue button field: Date_Issues_arose
 question: |
@@ -198,54 +171,21 @@ fields:
   - 'Issues:': issue_description
     input type: area
 ---
-id: Land Lord info 1
-question: |
-  Land Lord Information
-fields:
-  - Land Lord: other_parties[i].name.first
-  - Land Lord Last Name: other_parties[i].name.last
-    required: False 
----
-id: Land Lord info
-if: |
- land_lord_type == 'Person'
-question: |
-  Land Lord Information
-First Name: other_parties[i].name.first
-Last Name: other_parties[i].name.last
+objects:
+  - users: ALPeopleList.using(ask_number=True, target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=True, target_number=1)  
 ---
 objects:
-  - users: PeopleList.using(ask_number=True, target_number=1) # You can do the same thing for land_lord
-  - other_parties: PeopleList.using(ask_number=True, target_number=1)
+  - tenant_repair_request_attachment: ALDocument.using(title="Tenant Repair Letter", filename="tenant_repair_letter")
 ---
-progress: 100
-mandatory: True
-id: Your form is ready to download and file
-question: |
-  Your lettter is ready to download
-subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
-  
-   1. Look over the letter below. Click the "[Review your answers](${ url_action('review_tenant_repair_request')})" button
-  if you need to make any changes.
-  2. Download and print 2 copies of your letter. Keep one for your records.
-  Send the other copy to your housing authority.
-  3. If you choose to send it by certified mail, bring your letter
-  unsealed to the post office. Write the certified mail number on the letter
-  before you place it in the mail.
-  
-  ${pdf_concatenate(tenant_repair_request_attachment['final'], filename='tenant_repair_request.pdf') }
-need: tenant_repair_request
-attachment code: tenant_repair_request_attachment['final']
----
-objects:
-  - tenant_repair_request_attachment: DADict
+code: |
+  tenant_repair_request_attachment.enabled = True
 ---
 attachment:
     variable name: tenant_repair_request_attachment[i]
     name: Letter to request a grievance hearing
     filename: tenant_repair_request
-    docx template file: tenant_repair_request.docx
+    docx template file: Form_9_-_Repair_Letter_Fields.docx
 ---
 id: tenant_repair_request review screen
 event: review_tenant_repair_request
@@ -254,10 +194,10 @@ question: |
 subquestion: |
   Edit your answers below
 review: 
-  - Edit: land_lord[0].address.address
+  - Edit: other_parties[0].address.address
     button: |
-      land_lord[0].address.address:
-      ${ land_lord[0].address.address }
+      other_parties[0].address.address:
+      ${ other_parties[0].address.address }
   - Edit: users[0].signature
     button: |
       users[0].signature:
@@ -274,18 +214,18 @@ review:
     button: |
       signature_date:
       ${ signature_date }
-  - Edit: land_lord[0].name.first
+  - Edit: other_parties[0].name.first
     button: |
-      land_lord[0]:
-      ${ land_lord[0] }
+      other_parties[0]:
+      ${ other_parties[0] }
   - Edit: users[0].address
     button: |
       users[0].address:
       ${ users[0].address }
-  - Edit: land_lord[0].address
+  - Edit: other_parties[0].address
     button: |
-      land_lord[0].address:
-      ${ land_lord[0].address }
+      other_parties[0].address:
+      ${ other_parties[0].address }
   - Edit: users[0].address.address
     button: |
       users[0].address.address:
@@ -373,3 +313,12 @@ script: |
     $(".da-field-buttons > div > .btn-da-custom").last().after("<br>")
     $(".da-field-buttons > div > .btn-da-custom").first().before("<br>")
   </script>
+---
+sets:
+  - other_parties[0].name.first
+id: names of opposing parties
+question: |
+  What is your landlord's name?
+fields:
+  - code: |
+      other_parties[0].name_fields(person_or_business='unsure')
