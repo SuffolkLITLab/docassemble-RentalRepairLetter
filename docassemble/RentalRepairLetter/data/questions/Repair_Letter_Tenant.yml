@@ -185,7 +185,7 @@ attachment:
     variable name: tenant_repair_request_attachment[i]
     name: Letter to request a grievance hearing
     filename: tenant_repair_request
-    docx template file: Form_9_-_Repair_Letter_Fields.docx
+    docx template file: tenant_repair_letter.docx
 ---
 id: tenant_repair_request review screen
 event: review_tenant_repair_request
