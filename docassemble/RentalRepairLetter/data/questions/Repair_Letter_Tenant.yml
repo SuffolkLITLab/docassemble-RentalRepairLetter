@@ -40,7 +40,7 @@ sections:
 id: interview_order_tenant_repair_request
 code: |
   user_role = 'plaintiff'
-  mailing_method  
+  # mailing_method  
   set_parts(subtitle=str(users))
   set_progress(12.5)
   users[0].name.first
@@ -182,7 +182,7 @@ subquestion: |
 fields:
   - no label: tenant_repair_introduction
     datatype: area
-    
+    required: False
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True, target_number=1)
