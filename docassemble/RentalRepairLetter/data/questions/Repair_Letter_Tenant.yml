@@ -61,7 +61,7 @@ code: |
 id: custom intro screen
 decoration: form-lineal
 question: |
-  Send a Repair Demand Letter to Your Landlord: Mass Access Project
+  Send a Repair Request Letter to Your Landlord: Mass Access Project
 subquestion: |
   
   The MassAccess Project can help Massachusetts tenants write and send letters in 3 steps:
@@ -72,7 +72,7 @@ subquestion: |
  
   
     *This site is not a lawyer. If you would like a lawyer, find [your local
-  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).*
+  legal aid provider](https://masslrf.org).*
   
   Tap the {green words} in any screen for a definition or more information.
   
@@ -122,7 +122,7 @@ subquestion: |
   
   Before you start, you will need information about your landlord and their address.
   
-  *The [Cour Forms Online](https://courtformsonline.org/housing/) project may be able to help with other housing issues.* 
+  *The [Court Forms Online](https://courtformsonline.org/housing/) project may be able to help with other housing problems.* 
   
 help:
   label: |
@@ -154,20 +154,20 @@ fields:
 ---
 id: Date Issues arose
 question: |
-  When did the issue begin
+  When did the problem start?
 subquestion: |
-  Give the approximate date if you do not know the exact date. 
+  Give the best date you know. It is OK if it is not the exact date.
 fields:
-  - 'Date Issue(s) Arose:': tenant_repair_issue_date
+  - Date problem started: tenant_repair_issue_date
     datatype: date
 ---
 id: Issues
 question: |
-  Describe your issue
+  Describe the problem
 subquestion: |
-  Give a specific description of the things(s) you need repaired.
+  Tell the landlord the problem that needs to be fixed. Be specific.
 fields:
-  - 'Issues:': tenant_repair_issue_description
+  - no label: tenant_repair_issue_description
     input type: area
 ---
 id: tenant_repair_introduction
@@ -320,9 +320,7 @@ subquestion: |
   Your letter is almost ready. You need to sign it first.
   
   Use the mouse or touchpad on your computer or
-  sign with your finger on your phone. 
-   
-  You can send the letter to someone else to sign if you choose the "phone" option.
+  sign with your finger on your phone.
 field: signature_choice
 buttons:  
   - Sign on my phone: phone
