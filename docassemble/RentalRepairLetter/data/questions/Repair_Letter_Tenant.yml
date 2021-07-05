@@ -203,54 +203,40 @@ attachment:
 id: tenant_repair_request review screen
 event: review_tenant_repair_request
 question: |
-  Placeholder Review Screen
+  Review repair letter
 subquestion: |
   Edit your answers below
 review: 
-  - Edit: other_parties[0].address.address
-    button: |
-      other_parties[0].address.address:
-      ${ other_parties[0].address.address }
-  - Edit: users[0].signature
-    button: |
-      users[0].signature:
-      ${ users[0].signature }
   - Edit: users[0].name.first
     button: |
-      users[0]:
-      ${ users[0] }
-  - Edit: users[0].number
+      Your name: ${ users[0] }
+  - Edit: review_conditions
     button: |
-      users[0].number:
-      ${ users[0].number }
-  - Edit: signature_date
-    button: |
-      signature_date:
-      ${ signature_date }
-  - Edit: other_parties[0].name.first
-    button: |
-      other_parties[0]:
-      ${ other_parties[0] }
-  - Edit: users[0].address
-    button: |
-      users[0].address:
-      ${ users[0].address }
-  - Edit: other_parties[0].address
-    button: |
-      other_parties[0].address:
-      ${ other_parties[0].address }
+      ${ review_conditions_template }
   - Edit: users[0].address.address
     button: |
-      users[0].address.address:
-      ${ users[0].address.address }
+      Your address: ${ users[0].address_block() }      
+  - Edit: other_parties[0].name.first
+    button: |
+      Your landlord's name: ${ other_parties[0] }
+  - Edit: other_parties[0].address.address
+    button: |
+      Your landlord's address: ${ other_parties[0].address.address }      
+  - Edit: users[0].number
+    button: |
+      Number:
+      ${ users[0].number }
   - Edit: tenant_repair_introduction
     button: |
+      Introduction to your letter: 
       > ${ tenant_repair_introduction } 
   - Edit: tenant_repair_issue_date
     button: |
+      Date of first problem: 
       ${ tenant_repair_issue_date }
   - Edit: tenant_repair_issue_description
     button: |
+      Description of problem:
       > ${ tenant_repair_issue_description }
 ---
 id: your name
