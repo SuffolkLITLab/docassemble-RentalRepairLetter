@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -51,8 +51,7 @@ setup(name='docassemble.RentalRepairLetter',
       author_email='cselak@su.suffolk.edu',
       license='The MIT License (MIT)',
       url='https://apps-dev.suffolklitlab.org/interview?i=docassemble.playground98%3ARepair_Demand_Letter.yml#page1',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
+      packages=find_namespace_packages(),
       install_requires=['docassemble.MAVirtualCourt>=1.0.22'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/RentalRepairLetter/', package='docassemble.RentalRepairLetter'),
