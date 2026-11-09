@@ -46,7 +46,7 @@ progress: 100
 event: download_tenant_repair_request
 id: download_tenant_repair_request
 question: |
-  Your lettter is ready to download
+  Your letter is ready to download
 subquestion: |
   Thank you ${users}. Your form is ready to download and deliver.
   
